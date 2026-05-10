@@ -3,9 +3,9 @@ const ctrl = require('../controllers/productoController');
 const auth = require('../middlewares/auth');
 const authorize = require('../middlewares/validateRole');
 
-// Públicos (con token)
-router.get('/', auth, ctrl.getAll);
-router.get('/:codigo_producto', auth, ctrl.getByCodigo);
+// Públicos — sin token (catálogo visible para cualquier visitante)
+router.get('/', ctrl.getAll);
+router.get('/:codigo_producto', ctrl.getByCodigo);
 
 // Solo admin/ejecutivo pueden crear, editar o eliminar
 router.post('/', auth, authorize('admin', 'ejecutivo'), ctrl.create);
