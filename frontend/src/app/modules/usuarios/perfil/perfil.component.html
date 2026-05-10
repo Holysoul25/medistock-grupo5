@@ -1,0 +1,64 @@
+<div class="perfil">
+  <h1 class="perfil-titulo">Mi Perfil</h1>
+
+  <div class="perfil-loading" *ngIf="loading">
+    <div class="spinner"></div><p>Cargando perfil…</p>
+  </div>
+
+  <ng-container *ngIf="!loading && usuario">
+
+    <div class="perfil-card">
+      <div class="perfil-avatar">{{ usuario.nombre?.charAt(0)?.toUpperCase() }}</div>
+      <div class="perfil-datos">
+        <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
+        <p class="perfil-email">{{ usuario.email }}</p>
+        <div class="perfil-badges">
+          <span class="badge-rol rol-{{ usuario.rol }}">{{ usuario.rol }}</span>
+          <!-- Muestra B2B o B2C si tiene perfil de cliente -->
+          <span *ngIf="clienteInfo"
+            class="badge-tipo"
+            [class.b2b]="clienteInfo.tipo_cliente === 'B2B'"
+            [class.b2c]="clienteInfo.tipo_cliente === 'B2C'">
+            {{ clienteInfo.tipo_cliente }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Datos de cliente -->
+    <div class="perfil-info" *ngIf="clienteInfo">
+
+      <!-- Banner descriptivo según tipo -->
+      <div class="tipo-banner b2b-banner" *ngIf="clienteInfo.tipo_cliente === 'B2B'">
+        <span>🏥</span>
+        <div>
+          <strong>Cuenta empresarial (B2B)</strong>
+          <p>Puede realizar pedidos en volumen. Emisión de factura disponible.</p>
+        </div>
+      </div>
+      <div class="tipo-banner b2c-banner" *ngIf="clienteInfo.tipo_cliente === 'B2C'">
+        <span>👤</span>
+        <div>
+          <strong>Cuenta personal (B2C)</strong>
+          <p>Pago con tarjeta vía Webpay al confirmar cada pedido.</p>
+        </div>
+      </div>
+
+      <h3>Datos registrados</h3>
+      <div class="info-row">
+        <span>RUT</span>
+        <span>{{ clienteInfo.rut }}</span>
+      </div>
+      <div class="info-row" *ngIf="clienteInfo.razon_social">
+        <span>Razón social</span>
+        <span>{{ clienteInfo.razon_social }}</span>
+      </div>
+      <div class="info-row">
+        <span>Tipo</span>
+        <span>{{ clienteInfo.tipo_cliente === 'B2B' ? 'Empresa / Clínica' : 'Persona natural' }}</span>
+      </div>
+    </div>
+
+    <button class="btn-logout" (click)="logout()">Cerrar sesión</button>
+  </ng-container>
+</div>

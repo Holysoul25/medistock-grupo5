@@ -1,0 +1,7 @@
+<div class="app-shell">
+  <div class="page-content">
+    <router-outlet></router-outlet>
+  </div>
+  <app-bottom-nav *ngIf="auth.isAuthenticated"></app-bottom-nav>
+  <app-toast></app-toast>
+</div>

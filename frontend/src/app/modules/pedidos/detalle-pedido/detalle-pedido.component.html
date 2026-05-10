@@ -1,0 +1,91 @@
+<div class="detalle-pedido">
+
+  <div class="dp-header">
+    <button class="btn-volver" (click)="volver()">← Volver</button>
+  </div>
+
+  <div class="dp-cargando" *ngIf="cargando">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="dp-error" *ngIf="!cargando && error">
+    <p>{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="!cargando && pedido">
+
+    <div class="dp-titulo-row">
+      <h2>Pedido #{{ pedido.id_pedido }}</h2>
+      <span class="badge badge-{{ pedido.estado }}">{{ pedido.estado }}</span>
+    </div>
+
+    <div class="dp-info">
+      <div class="info-item">
+        <span class="info-label">Cliente</span>
+        <span class="info-valor">{{ pedido.cliente }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Ejecutivo</span>
+        <span class="info-valor">{{ pedido.ejecutivo }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Fecha</span>
+        <span class="info-valor">{{ pedido.fecha_pedido | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <div class="info-item" *ngIf="pedido.direccion_entrega">
+        <span class="info-label">Dirección</span>
+        <span class="info-valor">{{ pedido.direccion_entrega }}</span>
+      </div>
+      <div class="info-item" *ngIf="pedido.notas">
+        <span class="info-label">Notas</span>
+        <span class="info-valor">{{ pedido.notas }}</span>
+      </div>
+    </div>
+
+    <!-- Detalle de productos -->
+    <h3 class="dp-subtitulo">Productos</h3>
+    <div class="detalle-tabla" *ngIf="pedido.detalle && pedido.detalle.length > 0">
+      <div class="detalle-fila cabecera">
+        <span>Producto</span>
+        <span>Cant.</span>
+        <span>P. Unit.</span>
+        <span>Subtotal</span>
+      </div>
+      <div class="detalle-fila" *ngFor="let d of pedido.detalle">
+        <span>{{ d.producto }}<br><small>{{ d.codigo_producto }}</small></span>
+        <span>{{ d.cantidad }}</span>
+        <span>{{ d.precio_unitario | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+        <span>{{ d.subtotal | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <div class="dp-total">
+      <span>Total</span>
+      <span>{{ pedido.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+    </div>
+
+    <!-- Pagar: cliente/ejecutivo cuando estado=pendiente -->
+    <div class="dp-pago" *ngIf="canIniciarPago">
+      <h3 class="dp-subtitulo">Pago</h3>
+      <button class="btn-pagar" (click)="iniciarPago()" [disabled]="iniciandoPago">
+        {{ iniciandoPago ? 'Redirigiendo…' : '💳 Pagar con Webpay' }}
+      </button>
+    </div>
+
+    <!-- Cambiar estado: solo admin, ejecutivo, operador -->
+    <ng-container *ngIf="canChangeEstado">
+      <h3 class="dp-subtitulo">Cambiar estado</h3>
+      <div class="estados-acciones">
+        <button
+          *ngFor="let e of estadosValidos"
+          class="btn-estado"
+          [class.activo]="pedido.estado === e"
+          [disabled]="pedido.estado === e"
+          (click)="cambiarEstado(e)">
+          {{ e }}
+        </button>
+      </div>
+    </ng-container>
+
+  </ng-container>
+</div>

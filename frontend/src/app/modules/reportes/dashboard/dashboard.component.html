@@ -1,0 +1,29 @@
+<div class="reportes">
+  <h1>Reportes</h1>
+
+  <div *ngIf="loading" class="r-loading"><div class="spinner"></div><p>Cargando…</p></div>
+
+  <ng-container *ngIf="!loading">
+    <div class="r-stats">
+      <div class="r-card">
+        <div class="r-card-label">Total pedidos</div>
+        <div class="r-card-value">{{ totalPedidos }}</div>
+      </div>
+      <div class="r-card r-card-blue">
+        <div class="r-card-label">Ventas totales</div>
+        <div class="r-card-value">{{ fmtCLP(totalVentas) }}</div>
+      </div>
+    </div>
+
+    <h2>Pedidos por estado</h2>
+    <div class="r-tabla">
+      <div class="r-fila cabecera">
+        <span>Estado</span><span>Cantidad</span>
+      </div>
+      <div class="r-fila" *ngFor="let e of pedidosPorEstado">
+        <span class="badge badge-{{ e.estado }}">{{ e.estado }}</span>
+        <span>{{ e.count }}</span>
+      </div>
+    </div>
+  </ng-container>
+</div>

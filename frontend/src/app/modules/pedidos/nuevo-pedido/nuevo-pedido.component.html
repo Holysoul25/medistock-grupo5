@@ -1,0 +1,86 @@
+<div class="nuevo-pedido">
+
+  <div class="np-header">
+    <button class="btn-volver" (click)="volver()">← Volver</button>
+    <h1 class="np-titulo">Nuevo Pedido</h1>
+  </div>
+
+  <div class="np-body">
+
+    <!-- Panel izquierdo: catálogo -->
+    <div class="np-catalogo">
+      <h2>Seleccionar productos</h2>
+      <div class="np-search">
+        <input
+          type="text"
+          placeholder="Buscar por nombre, código o categoría…"
+          [(ngModel)]="searchTerm"
+          (input)="filtrar()"
+          class="input-search" />
+      </div>
+
+      <div class="np-loading" *ngIf="loadingProductos">
+        <div class="spinner"></div><p>Cargando productos…</p>
+      </div>
+
+      <div class="np-grid" *ngIf="!loadingProductos">
+        <div class="prod-card" *ngFor="let p of filtrados">
+          <div class="prod-info">
+            <span class="prod-nombre">{{ p.nombre }}</span>
+            <span class="prod-codigo">{{ p.codigo_producto }}</span>
+            <span class="prod-cat">{{ p.categoria }}</span>
+            <span class="prod-precio">{{ fmtCLP(p.precio) }}</span>
+          </div>
+          <div class="prod-acciones">
+            <button class="btn-menos" (click)="quitarDelCarrito(p)" [disabled]="cantidadEnCarrito(p) === 0">−</button>
+            <span class="prod-cantidad">{{ cantidadEnCarrito(p) }}</span>
+            <button class="btn-mas" (click)="agregarAlCarrito(p)">+</button>
+          </div>
+        </div>
+
+        <div class="np-vacio" *ngIf="filtrados.length === 0">
+          No se encontraron productos.
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel derecho: carrito y datos del pedido -->
+    <div class="np-sidebar">
+      <h2>Carrito</h2>
+
+      <div class="carrito-vacio" *ngIf="carritoVacio">
+        <p>Agrega productos desde el catálogo.</p>
+      </div>
+
+      <div class="carrito-items" *ngIf="!carritoVacio">
+        <div class="carrito-item" *ngFor="let item of carrito">
+          <div class="ci-nombre">{{ item.producto.nombre }}</div>
+          <div class="ci-detalle">
+            {{ item.cantidad }} × {{ fmtCLP(item.producto.precio) }}
+          </div>
+          <div class="ci-subtotal">{{ fmtCLP(item.producto.precio * item.cantidad) }}</div>
+        </div>
+        <div class="carrito-total">
+          <span>Total</span>
+          <span>{{ fmtCLP(totalCarrito) }}</span>
+        </div>
+      </div>
+
+      <div class="np-form">
+        <label>Dirección de entrega</label>
+        <input type="text" [(ngModel)]="direccion_entrega" placeholder="Opcional" class="input-form" />
+
+        <label>Notas</label>
+        <textarea [(ngModel)]="notas" placeholder="Instrucciones adicionales…" class="input-form" rows="3"></textarea>
+      </div>
+
+      <button
+        class="btn-confirmar"
+        (click)="confirmarPedido()"
+        [disabled]="carritoVacio || loading">
+        {{ loading ? 'Enviando…' : 'Confirmar pedido' }}
+      </button>
+    </div>
+
+  </div>
+</div>

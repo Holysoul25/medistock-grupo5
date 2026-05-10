@@ -1,0 +1,27 @@
+<div class="admin-usuarios">
+  <h1>Gestión de Usuarios</h1>
+
+  <div class="info-banner">
+    <span>⚙️</span>
+    <p>Panel de administración. Solo visible para el rol <strong>admin</strong>.</p>
+  </div>
+
+  <div *ngIf="loading" class="a-loading"><div class="spinner"></div><p>Cargando…</p></div>
+  <div *ngIf="error" class="a-error">{{ error }}</div>
+
+  <div class="a-tabla" *ngIf="!loading && !error">
+    <div class="a-fila cabecera">
+      <span>Nombre</span><span>Email</span><span>Rol</span>
+    </div>
+    <div class="a-fila" *ngFor="let u of usuarios">
+      <span>{{ u.nombre }} {{ u.apellido }}</span>
+      <span>{{ u.email }}</span>
+      <span class="rol-badge rol-{{ u.rol }}">{{ u.rol }}</span>
+    </div>
+  </div>
+
+  <p class="a-nota">
+    Para listar todos los usuarios necesitas agregar <code>GET /api/usuarios</code>
+    en el backend con autorización <code>admin</code>.
+  </p>
+</div>
