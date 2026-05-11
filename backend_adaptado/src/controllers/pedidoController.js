@@ -8,12 +8,21 @@ const getAll = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+const getMisPedidos = async (req, res, next) => {
+  try {
+    const pedidos = await pedidoService.getMisPedidos(req.user.id);
+    success(res, pedidos);
+  } catch (err) { next(err); }
+};
+
 const getById = async (req, res, next) => {
   try {
     const pedido = await pedidoService.getById(req.params.id);
     success(res, pedido);
   } catch (err) { next(err); }
 };
+
+
 
 const create = async (req, res, next) => {
   try {
@@ -30,4 +39,4 @@ const updateEstado = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getAll, getById, create, updateEstado };
+module.exports = { getAll, getMisPedidos, getById, create, updateEstado };

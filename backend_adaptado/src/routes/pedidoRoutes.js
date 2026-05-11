@@ -4,6 +4,10 @@ const auth = require('../middlewares/auth');
 const authorize = require('../middlewares/validateRole');
 
 router.get('/', auth, authorize('admin', 'ejecutivo', 'operador', 'analista'), ctrl.getAll);
+
+// ✅ DEBE ir antes de /:id o Express lo confunde con un id
+router.get('/mis-pedidos', auth, ctrl.getMisPedidos);
+
 router.get('/:id', auth, ctrl.getById);
 router.post('/', auth, ctrl.create);
 router.patch('/:id/estado', auth, authorize('admin', 'ejecutivo', 'operador'), ctrl.updateEstado);

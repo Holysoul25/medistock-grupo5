@@ -3,7 +3,7 @@ const { success } = require('../utils/response');
 
 /**
  * POST /api/v1/logistica/:id_pedido/envio
- * Genera orden de envío en Bluexpress
+ * Genera orden de envío en Shipit.cl
  */
 const generarEnvio = async (req, res, next) => {
   try {
@@ -15,13 +15,13 @@ const generarEnvio = async (req, res, next) => {
       peso_kg: req.body.peso_kg,
     };
     const resultado = await logisticaService.generarEnvio(req.params.id_pedido, req.user.id, datosEnvio);
-    success(res, resultado, 'Envío generado en Bluexpress', 201);
+    success(res, resultado, 'Envío generado en Shipit.cl', 201);
   } catch (err) { next(err); }
 };
 
 /**
  * GET /api/v1/logistica/tracking/:codigo
- * Consulta estado del envío en Bluexpress
+ * Consulta estado del envío en Shipit.cl
  */
 const consultarTracking = async (req, res, next) => {
   try {

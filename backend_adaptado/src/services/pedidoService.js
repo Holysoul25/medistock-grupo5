@@ -6,6 +6,10 @@ const getAll = async () => {
   return await Pedido.findAll();
 };
 
+const getMisPedidos = async (id_usuario) => {
+  return await Pedido.findByUsuario(id_usuario);
+};
+
 const getById = async (id) => {
   const pedido = await Pedido.findById(id);
   if (!pedido) throw { statusCode: 404, message: 'Pedido no encontrado' };
@@ -14,7 +18,7 @@ const getById = async (id) => {
 };
 
 const create = async (id_usuario, body) => {
-  const { direccion_entrega, notas, items } = body;
+  const { direccion_entrega, comuna, notas, items } = body;
 
   if (!items || items.length === 0) {
     throw { statusCode: 400, message: 'El pedido debe tener al menos un producto' };
@@ -50,6 +54,7 @@ const create = async (id_usuario, body) => {
       id_usuario,
       id_estado_pedido: estadoRow.id_estado_pedido,
       direccion_entrega,
+      comuna,
       notas,
     },
     detalles
@@ -65,4 +70,4 @@ const updateEstado = async (id, estado, id_usuario) => {
   return await getById(id);
 };
 
-module.exports = { getAll, getById, create, updateEstado };
+module.exports = { getAll, getMisPedidos, getById, create, updateEstado };

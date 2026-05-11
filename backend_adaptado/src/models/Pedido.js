@@ -31,7 +31,7 @@ const Pedido = {
   findById: async (id) => {
     const [rows] = await db.query(
       `SELECT p.id_pedido, p.fecha_pedido, p.total, p.subtotal, p.descuento,
-              p.direccion_entrega, p.notas, ep.nombre AS estado,
+              p.direccion_entrega, p.comuna, p.notas, ep.nombre AS estado,
               u.nombre AS ejecutivo,
               cl.id_cliente, uc.nombre AS cliente, uc.email AS cliente_email
        FROM pedido p
@@ -44,6 +44,25 @@ const Pedido = {
     );
     return rows[0] || null;
   },
+
+   findByUsuario: async (id_usuario) => {
+    const [rows] = await db.query(
+      `SELECT p.id_pedido, p.fecha_pedido, p.total, p.subtotal, p.descuento,
+              p.direccion_entrega, ep.nombre AS estado,
+              u.nombre AS ejecutivo,
+              cl.id_cliente, uc.nombre AS cliente
+       FROM pedido p
+       JOIN estado_pedido ep ON p.id_estado_pedido = ep.id_estado_pedido
+       JOIN usuario u ON p.id_usuario = u.id_usuario
+       JOIN cliente cl ON p.id_cliente = cl.id_cliente
+       JOIN usuario uc ON cl.id_usuario = uc.id_usuario
+       WHERE cl.id_usuario = ?
+       ORDER BY p.fecha_pedido DESC`,
+      [id_usuario]
+    );
+    return rows;
+  },
+
 
   findDetalleByPedido: async (id_pedido) => {
     const [rows] = await db.query(
@@ -66,16 +85,16 @@ const Pedido = {
     try {
       await conn.beginTransaction();
 
-      const { id_cliente, id_usuario, id_estado_pedido, direccion_entrega = null, notas = null } = pedido;
+      const { id_cliente, id_usuario, id_estado_pedido, direccion_entrega = null,comuna =null, notas = null } = pedido;
 
       // Calcular totales
       const subtotal = detalles.reduce((sum, d) => sum + d.cantidad * d.precio_unitario, 0);
       const total = subtotal; // sin descuento por defecto
 
       const [result] = await conn.query(
-        `INSERT INTO pedido (id_cliente, id_usuario, id_estado_pedido, direccion_entrega, subtotal, total, notas)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [id_cliente, id_usuario, id_estado_pedido, direccion_entrega, subtotal, total, notas]
+        `INSERT INTO pedido (id_cliente, id_usuario, id_estado_pedido, direccion_entrega,comuna, subtotal, total, notas)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [id_cliente, id_usuario, id_estado_pedido, direccion_entrega,comuna, subtotal, total, notas]
       );
       const id_pedido = result.insertId;
 
@@ -143,5 +162,23 @@ const Pedido = {
     }
   },
 };
+
+findByUsuario: async (id_usuario) => {
+  const [rows] = await db.query(
+    `SELECT p.id_pedido, p.fecha_pedido, p.total, p.subtotal, p.descuento,
+            p.direccion_entrega, ep.nombre AS estado,
+            u.nombre AS ejecutivo,
+            cl.id_cliente, uc.nombre AS cliente
+     FROM pedido p
+     JOIN estado_pedido ep ON p.id_estado_pedido = ep.id_estado_pedido
+     JOIN usuario u ON p.id_usuario = u.id_usuario
+     JOIN cliente cl ON p.id_cliente = cl.id_cliente
+     JOIN usuario uc ON cl.id_usuario = uc.id_usuario
+     WHERE cl.id_usuario = ?
+     ORDER BY p.fecha_pedido DESC`,
+    [id_usuario]
+  );
+  return rows;
+},
 
 module.exports = Pedido;
