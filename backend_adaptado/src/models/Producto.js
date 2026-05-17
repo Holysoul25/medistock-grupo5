@@ -1,17 +1,23 @@
 const db = require('../config/db');
 
 const Producto = {
-  findAll: async () => {
+  findAll: async (incluirInactivos = false) => {
     const [rows] = await db.query(
       `SELECT p.id_producto, p.codigo_producto, p.nombre, p.descripcion,
-              p.unidad_medida, p.precio_unitario AS precio,
-              c.nombre AS categoria, p.requiere_receta, p.activo
-       FROM producto p
-       JOIN categoria c ON p.id_categoria = c.id_categoria
-       WHERE p.activo = 1`
+            p.unidad_medida, p.precio_unitario AS precio,
+            c.nombre AS categoria, p.requiere_receta, p.activo,
+            COALESCE(SUM(s.cantidad), 0) AS stock_total,
+            COALESCE(MIN(s.stock_minimo), 0) AS stock_minimo
+     FROM producto p
+     JOIN categoria c ON p.id_categoria = c.id_categoria
+     LEFT JOIN stock s ON p.id_producto = s.id_producto
+     ${incluirInactivos ? '' : 'WHERE p.activo = 1'}
+     GROUP BY p.id_producto
+     ORDER BY p.nombre`
     );
     return rows;
   },
+
 
   findByCodigo: async (codigo) => {
     const [rows] = await db.query(
@@ -39,9 +45,6 @@ const Producto = {
     return rows[0] || null;
   },
 
-  /**
-   * Busca o crea una categoría por nombre, retorna su id
-   */
   findOrCreateCategoria: async (nombreCategoria) => {
     const [rows] = await db.query(
       'SELECT id_categoria FROM categoria WHERE nombre = ?',
@@ -80,6 +83,21 @@ const Producto = {
     const [result] = await db.query(
       'UPDATE producto SET activo = 0 WHERE id_producto = ?',
       [id]
+    );
+    return result.affectedRows;
+  },
+  reactivar: async (id) => {
+    const [result] = await db.query(
+      'UPDATE producto SET activo = 1 WHERE id_producto = ?', [id]
+    );
+    return result.affectedRows;
+  },
+
+  hardDelete: async (id) => {
+    // No podemos borrar físicamente si tiene pedidos asociados
+    // Usamos soft delete
+    const [result] = await db.query(
+      'UPDATE producto SET activo = 0 WHERE id_producto = ?', [id]
     );
     return result.affectedRows;
   },

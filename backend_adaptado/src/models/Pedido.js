@@ -31,21 +31,27 @@ const Pedido = {
   findById: async (id) => {
     const [rows] = await db.query(
       `SELECT p.id_pedido, p.fecha_pedido, p.total, p.subtotal, p.descuento,
-              p.direccion_entrega, p.comuna, p.notas, ep.nombre AS estado,
-              u.nombre AS ejecutivo,
-              cl.id_cliente, uc.nombre AS cliente, uc.email AS cliente_email
-       FROM pedido p
-       JOIN estado_pedido ep ON p.id_estado_pedido = ep.id_estado_pedido
-       JOIN usuario u ON p.id_usuario = u.id_usuario
-       JOIN cliente cl ON p.id_cliente = cl.id_cliente
-       JOIN usuario uc ON cl.id_usuario = uc.id_usuario
-       WHERE p.id_pedido = ?`,
+            p.direccion_entrega, p.comuna, p.notas, ep.nombre AS estado,
+            u.nombre AS ejecutivo,
+            cl.id_cliente, uc.nombre AS cliente, uc.email AS cliente_email,
+            d.codigo_seguimiento, d.proveedor_logistica,
+            d.fecha_despacho, d.fecha_entrega_real,
+            d.respuesta_logistica, ed.nombre AS estado_despacho,
+            d.id_despacho
+     FROM pedido p
+     JOIN estado_pedido ep ON p.id_estado_pedido = ep.id_estado_pedido
+     JOIN usuario u ON p.id_usuario = u.id_usuario
+     JOIN cliente cl ON p.id_cliente = cl.id_cliente
+     JOIN usuario uc ON cl.id_usuario = uc.id_usuario
+     LEFT JOIN despacho d ON d.id_pedido = p.id_pedido
+     LEFT JOIN estado_despacho ed ON d.id_estado_despacho = ed.id_estado_despacho
+     WHERE p.id_pedido = ?`,
       [id]
     );
     return rows[0] || null;
-  },
+  },  
 
-   findByUsuario: async (id_usuario) => {
+  findByUsuario: async (id_usuario) => {
     const [rows] = await db.query(
       `SELECT p.id_pedido, p.fecha_pedido, p.total, p.subtotal, p.descuento,
               p.direccion_entrega, ep.nombre AS estado,
@@ -85,7 +91,7 @@ const Pedido = {
     try {
       await conn.beginTransaction();
 
-      const { id_cliente, id_usuario, id_estado_pedido, direccion_entrega = null,comuna =null, notas = null } = pedido;
+      const { id_cliente, id_usuario, id_estado_pedido, direccion_entrega = null, comuna = null, notas = null } = pedido;
 
       // Calcular totales
       const subtotal = detalles.reduce((sum, d) => sum + d.cantidad * d.precio_unitario, 0);
@@ -94,7 +100,7 @@ const Pedido = {
       const [result] = await conn.query(
         `INSERT INTO pedido (id_cliente, id_usuario, id_estado_pedido, direccion_entrega,comuna, subtotal, total, notas)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id_cliente, id_usuario, id_estado_pedido, direccion_entrega,comuna, subtotal, total, notas]
+        [id_cliente, id_usuario, id_estado_pedido, direccion_entrega, comuna, subtotal, total, notas]
       );
       const id_pedido = result.insertId;
 
@@ -161,7 +167,23 @@ const Pedido = {
       conn.release();
     }
   },
+
+  createDespacho: async ({ id_pedido, codigo_seguimiento, proveedor_logistica, fecha_despacho, respuesta_logistica }) => {
+  // id_bodega=1 y estado 'en_camino' por defecto, ajusta según tu lógica
+  const [estadoRows] = await db.query(
+    "SELECT id_estado_despacho FROM estado_despacho WHERE nombre = 'en_camino'"
+  );
+  const id_estado_despacho = estadoRows[0]?.id_estado_despacho ?? 2;
+
+  await db.query(
+    `INSERT INTO despacho (id_pedido, id_bodega, id_estado_despacho, codigo_seguimiento, proveedor_logistica, fecha_despacho, respuesta_logistica)
+     VALUES (?, 1, ?, ?, ?, ?, ?)`,
+    [id_pedido, id_estado_despacho, codigo_seguimiento, proveedor_logistica, fecha_despacho, respuesta_logistica]
+  );
+}
 };
+
+
 
 findByUsuario: async (id_usuario) => {
   const [rows] = await db.query(
@@ -181,4 +203,4 @@ findByUsuario: async (id_usuario) => {
   return rows;
 },
 
-module.exports = Pedido;
+  module.exports = Pedido;

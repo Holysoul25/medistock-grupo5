@@ -3,7 +3,19 @@ const { success, error } = require('../utils/response');
 
 const getAll = async (req, res, next) => {
   try {
-    const productos = await productoService.getAll();
+    let esAdmin = false;
+
+    const authHeader = req.headers.authorization;
+    if (authHeader) {
+      try {
+        const jwt = require('jsonwebtoken');
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        esAdmin = ['admin', 'ejecutivo', 'operador'].includes(decoded.rol);
+      } catch (_) { /* token inválido → guest */ }
+    }
+
+    const productos = await productoService.getAll(esAdmin);
     success(res, productos, 'Productos obtenidos correctamente');
   } catch (err) { next(err); }
 };
@@ -36,4 +48,11 @@ const remove = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { getAll, getByCodigo, create, update, remove };
+const reactivar = async (req, res, next) => {
+  try {
+    await productoService.reactivar(req.params.id);
+    success(res, null, 'Producto reactivado');
+  } catch (err) { next(err); }
+};
+
+module.exports = { getAll, getByCodigo, create, update, remove, reactivar };

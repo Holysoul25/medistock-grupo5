@@ -33,6 +33,15 @@ const Stock = {
     );
     return result.affectedRows;
   },
+  create: async ({ id_producto, id_bodega, cantidad, stock_minimo }) => {
+    await db.query(
+      `INSERT INTO stock (id_producto, id_bodega, cantidad, stock_minimo)
+       VALUES (?, ?, ?, ?)`,
+      [id_producto, id_bodega, cantidad, stock_minimo]
+    );
+  },
 };
+
+
 
 module.exports = Stock;
