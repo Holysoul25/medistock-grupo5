@@ -1,24 +1,9 @@
 const axios = require('axios');
 
-/**
- * Cliente de integración Shipit.cl
- *
- * MODO ACTUAL: Mock realista con estructura real de la API Shipit.
- * Cuando necesiten probarlo de verdad, solo cambiar:
- *   1. SHIPIT_MOCK=false en .env
- *   2. Agregar SHIPIT_EMAIL y SHIPIT_TOKEN en .env
- *
- * Registro gratuito:    https://www.shipit.cl/registro
- * Documentación API:   https://developers.shipit.cl/docs
- * Modo test:           El prefix "TEST-" en el reference genera pedidos de prueba
- *                      sin costo ni despacho real.
- * Soporte:             integraciones@shipit.cl
- */
-
 const BASE_URL = process.env.SHIPIT_URL || 'https://api.shipit.cl/v/0';
 const EMAIL = process.env.SHIPIT_EMAIL || '';
 const TOKEN = process.env.SHIPIT_TOKEN || '';
-const MOCK = process.env.SHIPIT_MOCK !== 'false'; // true por defecto
+const MOCK = process.env.SHIPIT_MOCK !== 'false';
 
 const client = axios.create({
   baseURL: BASE_URL,
@@ -26,23 +11,11 @@ const client = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/vnd.shipit.v4',
-    // Shipit usa autenticación por email + token en cada request
     'X-Shipit-Email': EMAIL,
     'X-Shipit-Access-Token': TOKEN,
   },
 });
 
-/**
- * Genera una orden de envío en Shipit.cl
- * @param {object} envio
- * @param {string} envio.numero_pedido
- * @param {string} envio.nombre_destinatario
- * @param {string} envio.direccion
- * @param {string} envio.ciudad            - Nombre de comuna chilena (ej: "Las Condes")
- * @param {string} envio.telefono
- * @param {number} envio.peso_kg
- * @param {string} envio.descripcion
- */
 const generarOrdenEnvio = async (envio) => {
   if (MOCK) {
     console.log('⚠️  Shipit en modo MOCK. Activar con SHIPIT_MOCK=false en .env');
@@ -60,16 +33,11 @@ const generarOrdenEnvio = async (envio) => {
     };
   }
 
-  // --- Integración real Shipit ---
-  //
-  // Shipit necesita el id de comuna (commune_id) en lugar del nombre de ciudad.
-  // Para simplificar, lo buscamos dinámicamente por nombre.
-  // En producción conviene cachear el listado de comunas al iniciar la app.
   const comuna = await buscarComuna(envio.ciudad);
 
-    const reference = process.env.NODE_ENV === 'production'
-  ? `MS-${envio.numero_pedido}`        // "MS-3" = 4 chars
-  : `TEST-MS-${envio.numero_pedido}`;  // "TEST-MS-3" = 9 chars ✅
+  const reference = process.env.NODE_ENV === 'production'
+    ? `MS-${envio.numero_pedido}`
+    : `TEST-MS-${envio.numero_pedido}`;
 
   const payload = {
     shipment: {
@@ -116,7 +84,6 @@ const generarOrdenEnvio = async (envio) => {
     throw err;
   }
 
-
   const data = response.data;
 
   return {
@@ -129,15 +96,6 @@ const generarOrdenEnvio = async (envio) => {
     raw: data,
   };
 };
-
-/**
- * Consulta el estado de un envío por código de seguimiento
- * Interfaz idéntica a la anterior — el controller no cambia.
- *
- * @param {string} codigo_seguimiento
- */
-
-
 
 const consultarTracking = async (codigo_seguimiento) => {
   if (MOCK) {
@@ -156,11 +114,9 @@ const consultarTracking = async (codigo_seguimiento) => {
     };
   }
 
-  // --- Integración real Shipit ---
   const response = await client.get(`/shipments/tracking/${codigo_seguimiento}`);
   const data = response.data;
 
-  // Mapear estados Shipit → estados internos (misma interfaz que antes)
   const mapaEstados = {
     'ready_to_ship': 'EN_BODEGA',
     'shipped': 'EN_TRANSITO',
@@ -191,17 +147,8 @@ const consultarTracking = async (codigo_seguimiento) => {
   };
 };
 
-// ─── Helpers internos ────────────────────────────────────────────────────────
-
-/**
- * Busca el commune_id de Shipit por nombre de ciudad/comuna.
- * Shipit requiere IDs numéricos, no strings.
- * Cache simple en memoria para no llamar la API en cada pedido.
- */
 let _comunasCache = null;
 
-// ─── buscarComuna — match case-insensitive ───
-// Cambia la función para retornar objeto en vez de solo id
 const buscarComuna = async (nombreCiudad) => {
   if (!_comunasCache) {
     const res = await client.get('/communes');
@@ -218,6 +165,25 @@ const buscarComuna = async (nombreCiudad) => {
 };
 
 const getComunas = async () => {
+  if (MOCK) {
+    return [
+      { id: 1, name: 'Santiago' },
+      { id: 2, name: 'Providencia' },
+      { id: 3, name: 'Las Condes' },
+      { id: 4, name: 'Ñuñoa' },
+      { id: 5, name: 'Maipú' },
+      { id: 6, name: 'La Florida' },
+      { id: 7, name: 'Puente Alto' },
+      { id: 8, name: 'San Bernardo' },
+      { id: 9, name: 'Quilicura' },
+      { id: 10, name: 'Recoleta' },
+      { id: 11, name: 'Valparaíso' },
+      { id: 12, name: 'Viña del Mar' },
+      { id: 13, name: 'Concepción' },
+      { id: 14, name: 'Temuco' },
+      { id: 15, name: 'Antofagasta' }
+    ];
+  }
   if (!_comunasCache) {
     const res = await client.get('/communes');
     _comunasCache = res.data;
