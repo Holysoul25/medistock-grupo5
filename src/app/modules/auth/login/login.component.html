@@ -1,0 +1,58 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="logo">MediStock</div>
+    <div class="subtitle">{{ isLogin ? 'Ingresa a tu cuenta' : 'Crea tu cuenta' }}</div>
+
+    <!-- Mensaje contextual si viene desde el carrito -->
+    <div class="alert alert-info" *ngIf="returnUrl === '/pedidos/nuevo'">
+      Para confirmar tu pedido necesitas una cuenta.
+    </div>
+
+    <div class="alert alert-red" *ngIf="error">{{ error }}</div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <ng-container *ngIf="!isLogin">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input class="form-control" formControlName="nombre" placeholder="Juan">
+          <small class="text-danger" *ngIf="invalid('nombre')">Requerido</small>
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input class="form-control" formControlName="apellido" placeholder="González">
+        </div>
+        <div class="form-group">
+          <label>RUT</label>
+          <input class="form-control" formControlName="rut" placeholder="12345678-9">
+          <small class="text-danger" *ngIf="invalid('rut')">Requerido</small>
+        </div>
+      </ng-container>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input class="form-control" type="email" formControlName="email" placeholder="correo@empresa.cl">
+        <small class="text-danger" *ngIf="invalid('email')">Email inválido</small>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input class="form-control" type="password" formControlName="password" placeholder="••••••••">
+        <small class="text-danger" *ngIf="invalid('password')">Mínimo 6 caracteres</small>
+      </div>
+
+      <button type="submit" class="btn-primary" [disabled]="loading">
+        {{ loading ? 'Cargando…' : (isLogin ? 'Iniciar sesión' : 'Registrarse') }}
+      </button>
+    </form>
+
+    <div class="form-toggle">
+      <span>{{ isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?' }}</span>
+      <a (click)="toggle()"> {{ isLogin ? 'Regístrate' : 'Inicia sesión' }}</a>
+    </div>
+
+    <!-- Volver al catálogo sin registrarse -->
+    <div class="back-link">
+      <a [routerLink]="['/productos']">← Seguir viendo productos</a>
+    </div>
+  </div>
+</div>

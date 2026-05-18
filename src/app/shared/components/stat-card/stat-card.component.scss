@@ -1,0 +1,10 @@
+.stat-card {
+  flex: 1;
+  background: var(--grey100);
+  border-radius: 14px;
+  padding: 14px 12px;
+
+  &.dark { background: var(--black); color: var(--white); .stat-label { color: rgba(255,255,255,.6); } }
+}
+.stat-value { font-size: 20px; font-weight: 800; line-height: 1.1; }
+.stat-label { font-size: 11px; color: var(--grey400); margin-top: 2px; font-weight: 600; }

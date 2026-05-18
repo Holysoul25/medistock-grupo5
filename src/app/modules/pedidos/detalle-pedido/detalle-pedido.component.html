@@ -1,0 +1,131 @@
+<div class="detalle-pedido">
+
+  <div class="dp-header">
+    <button class="btn-volver" (click)="volver()">← Volver</button>
+  </div>
+
+  <div class="dp-cargando" *ngIf="cargando">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="dp-error" *ngIf="!cargando && error">
+    <p>{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="!cargando && pedido">
+
+    <div class="dp-titulo-row">
+      <h2>Pedido #{{ pedido.id_pedido }}</h2>
+      <span class="badge badge-{{ pedido.estado }}">{{ pedido.estado }}</span>
+    </div>
+
+    <div class="dp-info">
+      <div class="info-item">
+        <span class="info-label">Cliente</span>
+        <span class="info-valor">{{ pedido.cliente }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Ejecutivo</span>
+        <span class="info-valor">{{ pedido.ejecutivo }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Fecha</span>
+        <span class="info-valor">{{ pedido.fecha_pedido | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <div class="info-item" *ngIf="pedido.direccion_entrega">
+        <span class="info-label">Dirección</span>
+        <span class="info-valor">{{ pedido.direccion_entrega }}</span>
+      </div>
+      <div class="info-item" *ngIf="pedido.notas">
+        <span class="info-label">Notas</span>
+        <span class="info-valor">{{ pedido.notas }}</span>
+      </div>
+    </div>
+
+    <!-- Productos -->
+    <h3 class="dp-subtitulo">Productos</h3>
+    <div class="detalle-tabla" *ngIf="pedido.detalle && pedido.detalle.length > 0">
+      <div class="detalle-fila cabecera">
+        <span>Producto</span>
+        <span>Cant.</span>
+        <span>P. Unit.</span>
+        <span>Subtotal</span>
+      </div>
+      <div class="detalle-fila" *ngFor="let d of pedido.detalle">
+        <span>{{ d.producto }}<br><small>{{ d.codigo_producto }}</small></span>
+        <span>{{ d.cantidad }}</span>
+        <span>{{ d.precio_unitario | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+        <span>{{ d.subtotal | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+    </div>
+
+    <div class="dp-total">
+      <span>Total</span>
+      <span>{{ pedido.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+    </div>
+
+    <!-- Pagar -->
+    <div class="dp-pago" *ngIf="canIniciarPago">
+      <h3 class="dp-subtitulo">Pago</h3>
+      <button class="btn-pagar" (click)="iniciarPago()" [disabled]="iniciandoPago">
+        {{ iniciandoPago ? 'Redirigiendo…' : '💳 Pagar con Webpay' }}
+      </button>
+    </div>
+
+    <!-- ── Generar envío Shipit (admin/operador, estado=aprobado) ── -->
+    <ng-container *ngIf="canGenerarEnvio">
+      <h3 class="dp-subtitulo">Despacho</h3>
+      <div class="dp-envio-form">
+        <div>
+          <input type="text" class="input-ciudad" [(ngModel)]="ciudadEnvio" placeholder="Comuna de destino" />
+          <small *ngIf="pedido?.comuna" style="color:#888; font-size:11px;">
+            Comuna registrada: {{ pedido.comuna }}
+          </small>
+        </div>
+        <button class="btn-despachar" (click)="generarEnvio()" [disabled]="generandoEnvio">
+          {{ generandoEnvio ? 'Generando envío…' : '📦 Generar envío Shipit' }}
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- ── Tracking (cuando está despachado) ── -->
+    <ng-container *ngIf="pedido.estado === 'despachado'">
+      <h3 class="dp-subtitulo">Seguimiento</h3>
+
+      <p *ngIf="!pedido.codigo_seguimiento" style="color:#888; padding: 8px 0">
+        Sin código de seguimiento asignado aún.
+      </p>
+
+      <div class="dp-tracking-card" *ngIf="pedido.codigo_seguimiento">
+        <div class="tracking-row">
+          <span class="tracking-label">Código de seguimiento</span>
+          <span class="tracking-code">{{ pedido.codigo_seguimiento }}</span>
+        </div>
+        <div class="tracking-row" *ngIf="pedido.fecha_entrega_real">
+          <span class="tracking-label">Entrega estimada</span>
+          <span>{{ pedido.fecha_entrega_real | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="tracking-row" *ngIf="pedido.estado_despacho">
+          <span class="tracking-label">Estado envío</span>
+          <span class="tracking-badge">{{ pedido.estado_despacho }}</span>
+        </div>
+        <div class="tracking-row" *ngIf="pedido.proveedor_logistica">
+          <span class="tracking-label">Proveedor</span>
+          <span>{{ pedido.proveedor_logistica }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Cambiar estado: admin/ejecutivo/operador -->
+    <ng-container *ngIf="canChangeEstado">
+      <h3 class="dp-subtitulo">Cambiar estado</h3>
+      <div class="estados-acciones">
+        <button *ngFor="let e of estadosValidos" class="btn-estado" [class.activo]="pedido.estado === e"
+          [disabled]="pedido.estado === e" (click)="cambiarEstado(e)">
+          {{ e }}
+        </button>
+      </div>
+    </ng-container>
+
+  </ng-container>
+</div>

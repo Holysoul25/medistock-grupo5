@@ -1,0 +1,18 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--grey200);
+  display: flex;
+  z-index: 100;
+  height: var(--nav-h);
+  width: 100%; 
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 4px; color: var(--grey400);
+  font-family: var(--font); font-size: 11px; font-weight: 600;
+  text-decoration: none; transition: color .15s;
+  svg { width: 22px; height: 22px; }
+  &.active { color: var(--black); }
+}

@@ -1,0 +1,79 @@
+<div class="perfil-wrap">
+
+  <h1 class="perfil-title">Mi Perfil</h1>
+
+  <div *ngIf="loading" class="perfil-loading">
+    <div class="spinner"></div>
+    <p>Cargando perfil…</p>
+  </div>
+
+  <div *ngIf="!loading && usuario" class="perfil-content">
+
+    <!-- Avatar -->
+    <div class="avatar-section">
+      <div class="avatar" [style.background]="getRolInfo().color + '22'" [style.color]="getRolInfo().color">
+        {{ usuario.nombre.charAt(0).toUpperCase() }}{{ (usuario.apellido ?? '').charAt(0).toUpperCase() }}
+      </div>
+      <div class="avatar-info">
+        <div class="user-name">{{ usuario.nombre }} {{ usuario.apellido }}</div>
+        <div class="user-email">{{ usuario.email }}</div>
+      </div>
+    </div>
+
+    <!-- Rol badge -->
+    <div class="rol-card" [style.border-color]="getRolInfo().color + '44'">
+      <span class="rol-icon">{{ getRolInfo().icon }}</span>
+      <div class="rol-info">
+        <div class="rol-label">Rol</div>
+        <div class="rol-value" [style.color]="getRolInfo().color">{{ getRolInfo().label }}</div>
+      </div>
+    </div>
+
+    <!-- Datos personales -->
+    <div class="datos-card">
+      <h2 class="card-title">Información personal</h2>
+
+      <div class="dato-row">
+        <span class="dato-label">Nombre</span>
+        <span class="dato-value">{{ usuario.nombre }} {{ usuario.apellido ?? '' }}</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Email</span>
+        <span class="dato-value">{{ usuario.email }}</span>
+      </div>
+      <div class="dato-row" *ngIf="usuario.telefono">
+        <span class="dato-label">Teléfono</span>
+        <span class="dato-value">{{ usuario.telefono }}</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">ID Usuario</span>
+        <span class="dato-value dato-id">#{{ usuario.id_usuario }}</span>
+      </div>
+    </div>
+
+    <!-- Datos de cliente (si aplica) -->
+    <div class="datos-card" *ngIf="clienteInfo">
+      <h2 class="card-title">Datos de cliente</h2>
+
+      <div class="dato-row">
+        <span class="dato-label">RUT</span>
+        <span class="dato-value">{{ clienteInfo.rut }}</span>
+      </div>
+      <div class="dato-row" *ngIf="clienteInfo.razon_social">
+        <span class="dato-label">Razón Social</span>
+        <span class="dato-value">{{ clienteInfo.razon_social }}</span>
+      </div>
+      <div class="dato-row">
+        <span class="dato-label">Tipo</span>
+        <span class="dato-value">{{ clienteInfo.tipo_cliente }}</span>
+      </div>
+    </div>
+
+    <!-- Logout -->
+    <button class="btn-logout" (click)="logout()">
+      Cerrar sesión
+    </button>
+
+  </div>
+
+</div>

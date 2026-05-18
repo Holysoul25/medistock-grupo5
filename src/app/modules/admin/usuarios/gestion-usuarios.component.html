@@ -1,0 +1,159 @@
+<div class="admin-usuarios">
+   <div class="au-header">
+    <h1>Gestión de Usuarios</h1>
+    <button class="btn-primary" style="width:auto; padding: 0 20px;" (click)="openCrear()">
+      + Nuevo usuario
+    </button>
+  </div>
+
+  <div class="info-banner">
+    <span>⚙️</span>
+    <p>Panel de administración. Solo visible para el rol <strong>admin</strong>.</p>
+  </div>
+
+  <div *ngIf="loading" class="a-loading">
+    <div class="spinner"></div>
+    <p>Cargando…</p>
+  </div>
+
+  <div *ngIf="error" class="a-error">{{ error }}</div>
+
+  <div class="a-tabla" *ngIf="!loading && !error">
+    <div class="a-fila cabecera">
+      <span>Nombre</span>
+      <span>Email</span>
+      <span>Rol</span>
+      <span>Estado</span>
+      <span></span>
+    </div>
+    <div class="a-fila" *ngFor="let u of usuarios">
+      <span class="u-nombre">{{ u.nombre }} {{ u.apellido }}</span>
+      <span class="u-email">{{ u.email }}</span>
+      <span class="rol-badge rol-{{ u.rol }}">{{ u.rol }}</span>
+      <span class="badge" [class.badge-green]="u.activo" [class.badge-grey]="!u.activo">
+        {{ u.activo ? 'Activo' : 'Inactivo' }}
+      </span>
+      <span class="u-acciones">
+        <button class="action-btn edit" (click)="openEdit(u)" title="Editar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+        <button class="action-btn delete" (click)="eliminar(u)" title="Desactivar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14H6L5 6"/>
+            <path d="M10 11v6M14 11v6"/>
+            <path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" [class.open]="showModalCrear" (click)="showModalCrear=false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuevo usuario</div>
+    <ng-container *ngIf="nuevo">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input class="form-control" [(ngModel)]="nuevo.nombre">
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input class="form-control" [(ngModel)]="nuevo.apellido">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input class="form-control" [(ngModel)]="nuevo.email" type="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input class="form-control" [(ngModel)]="nuevo.password" type="password">
+      </div>
+      <div class="form-group">
+        <label>RUT</label>
+        <input class="form-control" [(ngModel)]="nuevo.rut" placeholder="12345678-9">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input class="form-control" [(ngModel)]="nuevo.telefono">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rol</label>
+          <select class="form-control" [(ngModel)]="nuevo.rol">
+            <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipo cliente</label>
+          <select class="form-control" [(ngModel)]="nuevo.tipo_cliente">
+            <option value="B2C">B2C</option>
+            <option value="B2B">B2B</option>
+          </select>
+        </div>
+      </div>
+    </ng-container>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="showModalCrear=false">Cancelar</button>
+      <button class="btn-primary" style="flex:1" (click)="crear()" [disabled]="creando">
+        {{ creando ? 'Creando…' : 'Crear usuario' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal edición -->
+<div class="modal-overlay" [class.open]="showModal" (click)="showModal=false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Editar usuario</div>
+    <ng-container *ngIf="editando">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input class="form-control" [(ngModel)]="editando.nombre">
+        </div>
+        <div class="form-group">
+          <label>Apellido</label>
+          <input class="form-control" [(ngModel)]="editando.apellido">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input class="form-control" [(ngModel)]="editando.email" type="email">
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input class="form-control" [(ngModel)]="editando.telefono">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rol</label>
+          <select class="form-control" [(ngModel)]="editando.rol">
+            <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Estado</label>
+          <select class="form-control" [(ngModel)]="editando.activo">
+            <option [value]="1">Activo</option>
+            <option [value]="0">Inactivo</option>
+          </select>
+        </div>
+      </div>
+    </ng-container>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="showModal=false">Cancelar</button>
+      <button class="btn-primary" style="flex:1" (click)="guardar()" [disabled]="guardando">
+        {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </div>
+</div>

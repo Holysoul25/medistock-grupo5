@@ -1,0 +1,52 @@
+<nav class="bottom-nav">
+
+  <!-- Productos: todos los roles -->
+  <a class="nav-btn" routerLink="/productos" routerLinkActive="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/>
+      <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/>
+    </svg>
+    Productos
+  </a>
+
+  <!-- Pedidos: todos menos analista puro (igual puede ver reportes de pedidos) -->
+  <a class="nav-btn" routerLink="/pedidos" routerLinkActive="active" *ngIf="canSeePedidos">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
+      <rect x="9" y="3" width="6" height="4" rx="1.5"/>
+      <line x1="9" y1="12" x2="15" y2="12"/>
+      <line x1="9" y1="16" x2="13" y2="16"/>
+    </svg>
+    Pedidos
+  </a>
+
+  <!-- Reportes: solo admin y analista -->
+  <a class="nav-btn" routerLink="/reportes" routerLinkActive="active" *ngIf="canSeeReportes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <line x1="18" y1="20" x2="18" y2="10"/>
+      <line x1="12" y1="20" x2="12" y2="4"/>
+      <line x1="6" y1="20" x2="6" y2="14"/>
+    </svg>
+    Reportes
+  </a>
+
+  <!-- Admin: solo administrador -->
+  <a class="nav-btn" routerLink="/admin" routerLinkActive="active" *ngIf="canSeeAdmin">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <circle cx="12" cy="8" r="4"/>
+      <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+      <circle cx="18" cy="6" r="2" fill="currentColor"/>
+    </svg>
+    Admin
+  </a>
+
+  <!-- Perfil: todos -->
+  <a class="nav-btn" routerLink="/usuarios/perfil" routerLinkActive="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    Perfil
+  </a>
+
+</nav>

@@ -1,0 +1,287 @@
+// ── Contenedor principal ──────────────────────────────────
+.detalle-pedido {
+  padding: 0 20px 80px;
+  background: var(--bg, #f5f5f5);
+  min-height: 100vh;
+}
+
+// ── Header ───────────────────────────────────────────────
+.dp-header {
+  padding: 16px 0 8px;
+  display: flex;
+  align-items: center;
+}
+
+.btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #1a1a1a;
+  &:hover { background: #e4e4e4; }
+}
+
+// ── Loading / Error ───────────────────────────────────────
+.dp-cargando {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.dp-error {
+  background: #fff1f1;
+  border-radius: 12px;
+  padding: 16px;
+  color: #c00;
+  text-align: center;
+  margin-top: 20px;
+}
+
+// ── Título + badge estado ─────────────────────────────────
+.dp-titulo-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 16px 0 12px;
+
+  h2 {
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0;
+  }
+}
+
+.badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+
+  &.badge-pendiente  { background: #fef9c3; color: #854d0e; }
+  &.badge-aprobado   { background: #dcfce7; color: #166534; }
+  &.badge-despachado { background: #dbeafe; color: #1e40af; }
+  &.badge-entregado  { background: #f0fdf4; color: #15803d; }
+  &.badge-cancelado  { background: #fee2e2; color: #991b1b; }
+}
+
+// ── Info general ──────────────────────────────────────────
+.dp-info {
+  background: #fff;
+  border-radius: 14px;
+  padding: 4px 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+
+  &:last-child { border-bottom: none; }
+}
+
+.info-label { color: #999; font-size: 13px; }
+.info-valor { font-weight: 600; text-align: right; }
+
+// ── Subtítulos de sección ─────────────────────────────────
+.dp-subtitulo {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  margin: 20px 0 10px;
+}
+
+// ── Tabla de productos ────────────────────────────────────
+.detalle-tabla {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  margin-bottom: 4px;
+}
+
+.detalle-fila {
+  display: grid;
+  grid-template-columns: 2fr 0.5fr 1fr 1fr;
+  padding: 10px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+
+  &:last-child { border-bottom: none; }
+
+  &.cabecera {
+    background: #f7f7f7;
+    font-weight: 700;
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+  }
+
+  small { color: #bbb; font-size: 11px; }
+}
+
+// ── Total ─────────────────────────────────────────────────
+.dp-total {
+  background: #1a1a1a;
+  color: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+// ── Sección pago ─────────────────────────────────────────
+.dp-pago { margin-bottom: 8px; }
+
+.btn-pagar {
+  width: 100%;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  &:hover:not(:disabled) { opacity: 0.88; }
+  &:disabled { opacity: 0.4; cursor: default; }
+}
+
+// ── Generar envío Shipit ──────────────────────────────────
+.dp-envio-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.input-ciudad {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #f7f7f7;
+  &:focus { outline: none; border-color: #1a1a1a; background: #fff; }
+}
+
+.btn-despachar {
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+  &:hover:not(:disabled) { opacity: 0.85; }
+  &:disabled { opacity: 0.4; cursor: default; }
+}
+
+// ── Tracking ──────────────────────────────────────────────
+.dp-tracking-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.tracking-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.tracking-label { color: #999; font-size: 13px; }
+
+.tracking-code {
+  font-weight: 700;
+  font-family: monospace;
+  font-size: 15px;
+  color: #1a1a1a;
+}
+
+.tracking-badge {
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tracking-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.dp-tracking-estado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #888;
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+// ── Cambiar estado (admin) ────────────────────────────────
+.estados-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.btn-estado {
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-transform: capitalize;
+  transition: all 0.15s;
+
+  &:hover:not(:disabled) { border-color: #1a1a1a; background: #f5f5f5; }
+  &.activo { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+  &:disabled { opacity: 0.5; cursor: default; }
+}
+
+// ── Spinner ───────────────────────────────────────────────
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #1a1a1a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
