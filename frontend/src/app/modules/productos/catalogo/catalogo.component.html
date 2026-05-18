@@ -1,0 +1,348 @@
+<!-- ══════════ HEADER ══════════ -->
+<div class="page-header">
+  <h1 class="page-title">MediStock</h1>
+  <div class="header-actions">
+
+    <button class="btn-login" *ngIf="!auth.isAuthenticated" routerLink="/auth/login">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="15" height="15">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+      </svg>
+      Ingresar
+    </button>
+
+    <button class="btn-user" *ngIf="auth.isAuthenticated" routerLink="/perfil">
+      <span class="user-avatar">{{ auth.user?.nombre?.charAt(0)?.toUpperCase() || 'U' }}</span>
+      <span class="user-name">{{ auth.user?.nombre || 'Mi cuenta' }}</span>
+    </button>
+
+    <button class="icon-btn dark" *ngIf="canManage()" (click)="openAdd()" title="Agregar producto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+    </button>
+
+  </div>
+</div>
+
+<div class="page-content">
+
+  <!-- ══════════ TOGGLE B2C / B2B ══════════ -->
+  <div class="mode-toggle" *ngIf="puedeToggle">
+    <button class="mode-btn" [class.active]="modo === 'b2c'" (click)="cambiarModo('b2c')" type="button">
+      <span class="mode-icon">🧴</span>
+      <span class="mode-texts">
+        <span class="mode-name">Minorista</span>
+        <span class="mode-sub">Precio unitario</span>
+      </span>
+    </button>
+
+    <button class="mode-btn" [class.active]="modo === 'b2b'" (click)="cambiarModo('b2b')" type="button">
+      <span class="mode-icon">🏢</span>
+      <span class="mode-texts">
+        <span class="mode-name">Mayorista B2B</span>
+        <span class="mode-sub">Precio por volumen</span>
+      </span>
+    </button>
+  </div>
+
+  <!-- ══════════ BANNERS CONTEXTUALES ══════════ -->
+
+  <div class="mode-banner mode-banner--guest" *ngIf="!auth.isAuthenticated">
+    <span>
+      ¿Eres farmacia o clínica?
+      <a routerLink="/auth/register">Regístrate</a> o
+      <a routerLink="/auth/login">inicia sesión</a> para precios mayoristas.
+    </span>
+  </div>
+
+  <div class="mode-banner mode-banner--b2b" *ngIf="esB2B">
+    <span>🏷️ Precio mayorista — 15 % de descuento comprando {{ MIN_MAYORISTA }} o más unidades por producto</span>
+  </div>
+
+  <!-- ══════════ BUSCADOR ══════════ -->
+  <div class="search-row">
+    <div class="search-box">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9E9E9E" stroke-width="2.2">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input type="text" placeholder="Buscar producto…" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()">
+      <button class="search-clear" *ngIf="searchTerm" (click)="searchTerm = ''; applyFilter()" title="Limpiar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════ FILTROS POR CATEGORÍA ══════════ -->
+  <div class="category-filters" *ngIf="categorias.length > 0 && !showDashboard">
+    <button class="cat-chip" [class.active]="categoriaActiva === ''" (click)="filtrarCategoria('')" type="button">
+      Todos
+    </button>
+    <button class="cat-chip" *ngFor="let cat of categorias" [class.active]="categoriaActiva === cat"
+      (click)="filtrarCategoria(cat)" type="button">
+      {{ cat }}
+    </button>
+  </div>
+
+  <!-- ══════════ STATS ══════════ -->
+  <div class="stats-row">
+    <app-stat-card [value]="totalProductos.toString()" label="Productos" [dark]="true"></app-stat-card>
+    <app-stat-card [value]="totalCategorias.toString()" label="Categorías"></app-stat-card>
+    <app-stat-card [value]="conReceta.toString()" label="Con receta" valueColor="var(--blue)"></app-stat-card>
+  </div>
+
+  <!-- ══════════ LOADING ══════════ -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando productos…</p>
+  </div>
+
+  <!-- ══════════ DASHBOARD ══════════ -->
+  <div *ngIf="!loading && showDashboard">
+    <div class="section-title" style="margin-bottom:14px;">Por categoría</div>
+    <div class="bar-item" *ngFor="let c of categoriaStats">
+      <div class="bar-header">
+        <span>{{ c.cat }}</span>
+        <small>{{ c.count }} productos</small>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" [style.width.%]="c.pct"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ LISTA DE PRODUCTOS ACTIVOS ══════════ -->
+  <div *ngIf="!loading && !showDashboard">
+
+    <div class="section-header">
+      <span class="section-title">Productos</span>
+      <span class="section-count" *ngIf="searchTerm || categoriaActiva">
+        {{ filtered.length }} resultado{{ filtered.length !== 1 ? 's' : '' }}
+      </span>
+    </div>
+
+    <div class="empty" *ngIf="filtered.length === 0">
+      <div class="empty-icon">🔍</div>
+      <p>Sin resultados.<br>Ajusta tu búsqueda.</p>
+    </div>
+
+    <div class="products-grid">
+      <div class="list-row" *ngFor="let p of filtered">
+
+        <div class="row-info" [routerLink]="['/productos', p.codigo_producto]">
+          <div class="row-name">{{ p.nombre }}</div>
+          <div class="row-meta">{{ p.categoria }} · {{ p.unidad_medida }}</div>
+
+          <div class="volume-hint" *ngIf="esB2B && unidadesParaMayorista(p) > 0 && cantidad(p) > 0">
+            Agrega {{ unidadesParaMayorista(p) }} más para precio mayorista
+          </div>
+        </div>
+
+        <div class="row-right">
+          <div class="row-price" [class.price-mayorista]="tienePrecioMayorista(p)">
+            {{ fmtCLP(precioMostrado(p)) }}
+          </div>
+          <div class="row-price-original" *ngIf="tienePrecioMayorista(p)">
+            {{ fmtCLP(p.precio) }}
+          </div>
+
+          <span class="badge" [class.badge-red]="p.requiere_receta" [class.badge-green]="!p.requiere_receta">
+            {{ p.requiere_receta ? 'Receta' : 'Libre' }}
+          </span>
+          <span class="badge" [class.badge-green]="(p.stock_total ?? 0) > (p.stock_minimo ?? 0)"
+            [class.badge-orange]="(p.stock_total ?? 0) > 0 && (p.stock_total ?? 0) <= (p.stock_minimo ?? 0)"
+            [class.badge-red]="(p.stock_total ?? 0) === 0">
+            {{ (p.stock_total ?? 0) === 0 ? 'Sin stock' : 'Stock: ' + p.stock_total }}
+          </span>
+
+          <!-- Controles carrito — solo para clientes -->
+          <div class="cart-controls" *ngIf="!canManage()">
+            <ng-container *ngIf="cantidad(p) === 0; else stepper">
+              <button class="btn-add" (click)="agregar(p)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Agregar
+              </button>
+            </ng-container>
+            <ng-template #stepper>
+              <div class="qty-stepper" [class.qty-mayorista]="tienePrecioMayorista(p)">
+                <button class="qty-btn" (click)="quitar(p)">−</button>
+                <span class="qty-num">{{ cantidad(p) }}</span>
+                <button class="qty-btn" (click)="agregar(p)">+</button>
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Acciones admin — productos activos -->
+          <div class="row-actions" *ngIf="canManage()">
+
+            <button class="action-btn edit" (click)="openEdit(p, $event)" title="Editar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
+
+            <!-- Suspender -->
+            <button class="action-btn delete" (click)="toggleActivo(p, $event)" title="Suspender">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                <line x1="1" y1="1" x2="23" y2="23" />
+              </svg>
+            </button>
+
+            <!-- Eliminar permanente — solo admin -->
+            <button class="action-btn delete" *ngIf="isAdmin()" (click)="delete(p, $event)" title="Eliminar permanente">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6l-1 14H6L5 6" />
+                <path d="M10 11v6M14 11v6" />
+                <path d="M9 6V4h6v2" />
+              </svg>
+            </button>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ SECCIÓN SUSPENDIDOS (solo admin) ══════════ -->
+    <div *ngIf="isAdmin() && suspendidos.length > 0" style="margin-top:32px;">
+
+      <div class="section-header">
+        <span class="section-title" style="color:var(--red)">⚠ Suspendidos</span>
+        <span class="section-count">{{ suspendidos.length }} producto{{ suspendidos.length !== 1 ? 's' : '' }}</span>
+      </div>
+
+      <div class="products-grid">
+        <div class="list-row" *ngFor="let p of suspendidos" style="opacity:.75;">
+
+          <div class="row-info">
+            <div class="row-name" style="text-decoration:line-through; opacity:.6;">{{ p.nombre }}</div>
+            <div class="row-meta">{{ p.categoria }} · {{ p.unidad_medida }}</div>
+          </div>
+
+          <div class="row-right">
+            <div class="row-price">{{ fmtCLP(p.precio) }}</div>
+
+            <span class="badge" [class.badge-red]="p.requiere_receta" [class.badge-green]="!p.requiere_receta">
+              {{ p.requiere_receta ? 'Receta' : 'Libre' }}
+            </span>
+
+            <span style="font-size:11px; color:var(--red); font-weight:700; margin-top:2px;">
+              ⚠ Suspendido
+            </span>
+
+            <div class="row-actions">
+
+              <!-- Reactivar -->
+              <button class="action-btn edit" (click)="toggleActivo(p, $event)" title="Reactivar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+
+              <!-- Eliminar permanente -->
+              <button class="action-btn delete" (click)="delete(p, $event)" title="Eliminar permanente">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="13" height="13">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M9 6V4h6v2" />
+                </svg>
+              </button>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /suspendidos -->
+
+  </div><!-- /page-content -->
+
+  <!-- ══════════ FAB CARRITO ══════════ -->
+  <button class="fab-carrito" *ngIf="cart.count > 0 && !canManage()" (click)="irAlCarrito()">
+    <div class="fab-left">
+      <span class="fab-badge">{{ cart.count }}</span>
+      <span class="fab-label">Ver pedido</span>
+    </div>
+    <span class="fab-total">{{ fmtCLP(cart.total) }}</span>
+  </button>
+
+  <!-- ══════════ MODAL ADD/EDIT ══════════ -->
+  <div class="modal-overlay" [class.open]="showModal" (click)="showModal=false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-title">{{ editingId ? 'Editar producto' : 'Agregar producto' }}</div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <div class="form-group">
+          <label>Código producto</label>
+          <input class="form-control" formControlName="codigo_producto" placeholder="MED-001">
+          <small class="err" *ngIf="invalid('codigo_producto')">Requerido</small>
+        </div>
+        <div class="form-group">
+          <label>Nombre</label>
+          <input class="form-control" formControlName="nombre" placeholder="Paracetamol 500mg">
+          <small class="err" *ngIf="invalid('nombre')">Requerido</small>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stock inicial</label>
+            <input class="form-control" type="number" formControlName="stock_inicial" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label>Stock mínimo</label>
+            <input class="form-control" type="number" formControlName="stock_minimo" placeholder="10">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea class="form-control textarea" formControlName="descripcion" placeholder="Descripción…"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Precio unitario ($)</label>
+            <input class="form-control" type="number" formControlName="precio_unitario" placeholder="990">
+            <small class="err" *ngIf="invalid('precio_unitario')">Requerido</small>
+          </div>
+          <div class="form-group">
+            <label>Unidad medida</label>
+            <input class="form-control" formControlName="unidad_medida" placeholder="caja">
+            <small class="err" *ngIf="invalid('unidad_medida')">Requerido</small>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Categoría</label>
+            <input class="form-control" formControlName="categoria" placeholder="Analgésico">
+            <small class="err" *ngIf="invalid('categoria')">Requerido</small>
+          </div>
+          <div class="form-group">
+            <label>Requiere receta</label>
+            <select class="form-control" formControlName="requiere_receta">
+              <option [value]="0">No</option>
+              <option [value]="1">Sí</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="showModal=false">Cancelar</button>
+          <button type="submit" class="btn-primary" style="flex:1;">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

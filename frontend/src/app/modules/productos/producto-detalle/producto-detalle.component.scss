@@ -1,0 +1,112 @@
+/* ── Sección agregar al pedido ── */
+.carrito-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--grey200);
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+}
+
+/* ── Selector cantidad ── */
+.qty-row {
+  display: inline-flex;
+  align-items: center;
+  background: var(--grey100);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.qty-btn {
+  width: 52px;
+  height: 52px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  font-weight: 400;
+  cursor: pointer;
+  color: var(--black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .12s;
+
+  &:hover:not(:disabled) { background: var(--grey200); }
+  &:disabled { color: var(--grey400); cursor: default; }
+}
+
+.qty-val {
+  min-width: 52px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* ── Botón "Ver carrito" inline ── */
+.btn-agregar {
+  display: block;
+  width: 100%;
+  margin-top: 16px;
+  padding: 17px 20px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -0.2px;
+  transition: opacity .15s, transform .1s;
+
+  &:hover  { opacity: .88; }
+  &:active { transform: scale(.98); }
+}
+
+/* ── FAB carrito flotante ── */
+.fab-carrito {
+  position: fixed;
+  bottom: calc(var(--nav-h) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 560px;
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  z-index: 100;
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: opacity .15s, transform .15s;
+
+  &:hover  { opacity: .88; }
+  &:active { transform: translateX(-50%) scale(.97); }
+}
+
+.fab-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fab-badge {
+  background: var(--white);
+  color: var(--black);
+  font-size: 13px;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 3px 8px;
+  min-width: 26px;
+  text-align: center;
+}
+
+.fab-label { font-size: 15px; font-weight: 700; }
+.fab-total { font-size: 15px; font-weight: 700; opacity: .8; }

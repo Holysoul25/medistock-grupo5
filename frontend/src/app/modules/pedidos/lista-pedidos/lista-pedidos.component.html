@@ -1,0 +1,60 @@
+<div class="lista-pedidos">
+
+  <!-- Header -->
+  <div class="lp-header">
+    <h1 class="lp-titulo">Pedidos</h1>
+    <button class="btn-nuevo" *ngIf="canCreate" (click)="nuevoPedido()">+ Nuevo pedido</button>
+  </div>
+
+  <!-- Filtros de estado -->
+  <div class="lp-filtros">
+    <button
+      *ngFor="let e of estados"
+      class="filtro-btn"
+      [class.activo]="filtroEstado === e.valor"
+      (click)="onFiltroChange(e.valor)">
+      {{ e.label }}
+    </button>
+  </div>
+
+  <!-- Estado: cargando -->
+  <div class="lp-estado" *ngIf="cargando">
+    <div class="spinner"></div>
+    <p>Cargando pedidos…</p>
+  </div>
+
+  <!-- Estado: error -->
+  <div class="lp-estado lp-error" *ngIf="!cargando && error">
+    <span class="error-icono">⚠️</span>
+    <p>{{ error }}</p>
+    <button class="btn-reintentar" (click)="cargarPedidos()">Reintentar</button>
+  </div>
+
+  <!-- Estado: vacío -->
+  <div class="lp-estado" *ngIf="!cargando && !error && pedidosFiltrados.length === 0">
+    <p class="lp-vacio">No hay pedidos{{ filtroEstado !== 'todos' ? ' con estado "' + filtroEstado + '"' : '' }}.</p>
+  </div>
+
+  <!-- Lista de pedidos -->
+  <div class="lp-lista" *ngIf="!cargando && !error && pedidosFiltrados.length > 0">
+    <div
+      class="pedido-card"
+      *ngFor="let p of pedidosFiltrados"
+      (click)="verDetalle(p.id_pedido)">
+
+      <div class="card-top">
+        <span class="pedido-id">#{{ p.id_pedido }}</span>
+        <span class="badge" [ngClass]="badgeClass(p.estado)">{{ p.estado }}</span>
+      </div>
+
+      <div class="card-cliente">{{ p.cliente || '—' }}</div>
+
+      <div class="card-bottom">
+        <span class="card-fecha">{{ p.fecha_pedido | date:'dd/MM/yyyy' }}</span>
+        <span class="card-total">{{ p.total | currency:'CLP':'symbol-narrow':'1.0-0' }}</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,92 @@
+<div class="page-header">
+  <button class="icon-btn light" (click)="goBack()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  </button>
+  <h1 class="page-title" style="font-size:20px;">Detalle producto</h1>
+  <div style="width:44px;"></div>
+</div>
+
+<div class="loading" *ngIf="loading">
+  <div class="spinner"></div>
+</div>
+
+<div *ngIf="producto" style="padding:0 20px 120px;">
+
+  <!-- Info principal -->
+  <div style="margin-bottom:20px;">
+    <div style="font-size:13px;color:var(--grey400);font-weight:600;margin-bottom:4px;">{{ producto.codigo_producto }}
+    </div>
+    <div style="font-size:26px;font-weight:800;letter-spacing:-0.5px;">{{ producto.nombre }}</div>
+    <span class="badge" style="margin-top:8px;" [class.badge-red]="producto.requiere_receta"
+      [class.badge-green]="!producto.requiere_receta">
+      {{ producto.requiere_receta ? 'Requiere receta' : 'Venta libre' }}
+    </span>
+  </div>
+
+  <div class="detail-row"><span class="detail-key">Precio</span><span class="detail-val">{{ fmtCLP(producto.precio)
+      }}</span></div>
+  <div class="detail-row"><span class="detail-key">Categoría</span><span class="detail-val">{{ producto.categoria
+      }}</span></div>
+  <div class="detail-row"><span class="detail-key">Unidad medida</span><span class="detail-val">{{
+      producto.unidad_medida }}</span></div>
+  <div class="detail-row" *ngIf="producto.descripcion">
+    <span class="detail-key">Descripción</span>
+    <span class="detail-val">{{ producto.descripcion }}</span>
+  </div>
+
+  <!-- Stock por bodega -->
+  <ng-container *ngIf="producto.stock && producto.stock.length > 0">
+    <div class="section-title" style="margin:20px 0 12px;">Stock por bodega</div>
+    <div class="list-row" *ngFor="let s of producto.stock" style="cursor:default;">
+      <div class="row-info">
+        <div class="row-name">{{ s.bodega || 'Bodega principal' }}</div>
+        <div class="row-meta">Mínimo: {{ s.stock_minimo }}</div>
+      </div>
+      <div class="row-right">
+        <div class="row-price">{{ s.cantidad }} uds</div>
+        <span class="badge" [class.badge-red]="s.cantidad <= s.stock_minimo"
+          [class.badge-green]="s.cantidad > s.stock_minimo">
+          {{ s.cantidad <= s.stock_minimo ? 'Stock bajo' : 'OK' }} </span>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ── Agregar al carrito ── -->
+<div class="carrito-section" *ngIf="canPedir()">
+  <div class="section-title">Agregar al pedido</div>
+
+  <div class="qty-row">
+    <button class="qty-btn" (click)="decrementar()" [disabled]="cantidadLocal === 0">−</button>
+    <span class="qty-val">{{ cantidadLocal }}</span>
+    <button class="qty-btn" (click)="incrementar()" [disabled]="maxAlcanzado">+</button>
+  </div>
+
+  <!-- Mensaje cuando llega al máximo -->
+  <p *ngIf="maxAlcanzado" style="color:var(--red);font-size:12px;text-align:center;margin:6px 0 0;">
+    Máximo disponible: {{ stockDisponible }} unidades
+  </p>
+
+  <button class="btn-agregar" (click)="agregarAlPedido()" 
+    [disabled]="cantidadLocal === 0 || stockDisponible === 0">
+    {{ stockDisponible === 0 ? 'Sin stock' : '+ Agregar al pedido' }}
+  </button>
+</div>
+
+  <!-- Acciones admin -->
+  <div style="display:flex;gap:10px;margin-top:24px;" *ngIf="canManage()">
+    <button class="btn-secondary" style="flex:1;" [routerLink]="['/productos']">Volver</button>
+    <button class="btn-danger" style="flex:1;" *ngIf="isAdmin()" (click)="delete()">Eliminar</button>
+  </div>
+
+</div>
+
+<!-- ── FAB carrito flotante ── -->
+<button class="fab-carrito" *ngIf="cart.count > 0" (click)="irAlCarrito()">
+  <div class="fab-left">
+    <span class="fab-badge">{{ cart.count }}</span>
+    <span class="fab-label">Ver pedido</span>
+  </div>
+  <span class="fab-total">{{ fmtCLP(cart.total) }}</span>
+</button>

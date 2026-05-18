@@ -1,0 +1,29 @@
+<div class="confirmar-pago">
+  <div *ngIf="estado === 'cargando'" class="cp-estado">
+    <div class="spinner"></div>
+    <p>Confirmando pago…</p>
+  </div>
+
+  <div *ngIf="estado === 'aprobado'" class="cp-estado cp-ok">
+    <div class="cp-icono">✓</div>
+    <h2>Pago aprobado</h2>
+    <p>{{ mensaje }}</p>
+    <button class="btn-ir" (click)="idPedido ? irAlPedido() : irAPedidos()">
+      {{ idPedido ? 'Ver pedido' : 'Mis pedidos' }}
+    </button>
+  </div>
+
+  <div *ngIf="estado === 'rechazado'" class="cp-estado cp-fail">
+    <div class="cp-icono">✗</div>
+    <h2>Pago rechazado</h2>
+    <p>{{ mensaje }}</p>
+    <button class="btn-ir" (click)="irAPedidos()">Volver a pedidos</button>
+  </div>
+
+  <div *ngIf="estado === 'error'" class="cp-estado cp-fail">
+    <div class="cp-icono">⚠</div>
+    <h2>Error</h2>
+    <p>{{ mensaje }}</p>
+    <button class="btn-ir" (click)="irAPedidos()">Volver a pedidos</button>
+  </div>
+</div>

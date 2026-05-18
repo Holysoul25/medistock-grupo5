@@ -1,0 +1,127 @@
+<div class="dash-wrap">
+
+  <div *ngIf="accesoDenegado" class="acceso-denegado">
+    <div class="ad-icon">🔒</div>
+    <h2 class="ad-title">Acceso restringido</h2>
+    <p class="ad-sub">Solo admin, ejecutivo y analista pueden ver los reportes</p>
+  </div>
+
+  <div *ngIf="loading && !accesoDenegado" class="dash-loading">
+    <div class="spinner"></div>
+    <p>Cargando reportes…</p>
+  </div>
+
+  <ng-container *ngIf="!loading && !accesoDenegado">
+
+    <div class="dash-header">
+      <div>
+        <h1 class="dash-title">Reportes</h1>
+        <p class="dash-sub">{{ auth.user?.nombre }} · {{ auth.user?.rol }}</p>
+      </div>
+      <span class="dash-date">{{ today }}</span>
+    </div>
+
+    <div class="dolar-banner" *ngIf="dolar">
+      💵 Dólar hoy: <strong>${{ dolar.valor_clp | number:'1.0-0' }}</strong> CLP
+      <span class="dolar-fecha">· Fuente: Banco Central de Chile</span>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card" *ngFor="let k of kpis" [style.--accent]="k.color">
+        <div class="kpi-icon">{{ k.icon }}</div>
+        <div class="kpi-body">
+          <div class="kpi-value">{{ k.value }}</div>
+          <div class="kpi-label">{{ k.label }}</div>
+          <div class="kpi-sub">{{ k.sub }}</div>
+        </div>
+        <div class="kpi-bar" [style.background]="k.color + '22'">
+          <div class="kpi-bar-fill" [style.background]="k.color"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mid-grid">
+      <div class="card">
+        <h2 class="card-title">Estado de Pedidos</h2>
+        <div class="estado-list">
+          <div class="estado-row" *ngFor="let e of estadoStats">
+            <div class="estado-label">
+              <span class="estado-dot" [style.background]="e.color"></span>
+              {{ e.label }}
+            </div>
+            <div class="estado-track">
+              <div class="estado-fill" [style.width.%]="e.pct" [style.background]="e.color"></div>
+            </div>
+            <span class="estado-count">{{ e.count }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">Productos por Categoría</h2>
+        <div class="cat-list">
+          <div class="cat-row" *ngFor="let c of categoriaStats">
+            <div class="cat-name">{{ c.cat }}</div>
+            <div class="cat-track">
+              <div class="cat-fill" [style.width.%]="c.pct"></div>
+            </div>
+            <span class="cat-count">{{ c.count }}</span>
+          </div>
+          <div *ngIf="categoriaStats.length === 0" class="empty-msg">Sin datos</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bot-grid">
+      <div class="card card--wide">
+        <h2 class="card-title">Pedidos Recientes</h2>
+        <div class="table-wrap">
+          <table class="dash-table" *ngIf="pedidosRecientes.length > 0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Total</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of pedidosRecientes">
+                <td class="td-id">#{{ p.id_pedido }}</td>
+                <td>{{ p.cliente ?? p.ejecutivo ?? '—' }}</td>
+                <td class="td-fecha">{{ fmtFecha(p.fecha_pedido) }}</td>
+                <td class="td-total">{{ fmtCLP(p.total) }}</td>
+                <td>
+                  <span class="badge" [style.background]="estadoColor(p.estado) + '22'" [style.color]="estadoColor(p.estado)">
+                    {{ estadoLabel(p.estado) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="pedidosRecientes.length === 0" class="empty-msg">No hay pedidos aún</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title">⚠️ Stock Bajo</h2>
+        <div *ngIf="stockBajo.length > 0">
+          <div class="stock-row" *ngFor="let p of stockBajo">
+            <div class="stock-info">
+              <span class="stock-nombre">{{ p.nombre }}</span>
+              <span class="stock-cod">{{ p.codigo_producto }}</span>
+            </div>
+            <span class="stock-qty" [class.stock-critico]="getStockMin(p) === 0">
+              {{ getStockMin(p) }} u.
+            </span>
+          </div>
+        </div>
+        <div *ngIf="stockBajo.length === 0" class="empty-msg stock-ok">
+          ✅ Stock en niveles normales
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

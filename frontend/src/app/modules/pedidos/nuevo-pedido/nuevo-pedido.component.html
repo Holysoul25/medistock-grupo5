@@ -1,0 +1,99 @@
+<div class="nuevo-pedido">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button class="icon-btn light" (click)="volver()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+    <h1 class="page-title" style="font-size:20px;">Nuevo Pedido</h1>
+    <div style="width:44px;"></div>
+  </div>
+
+  <!-- Buscador -->
+  <div class="search-wrap">
+    <input type="text" class="search-input" placeholder="Buscar producto…" [(ngModel)]="searchTerm"
+      (input)="filtrar()" />
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loadingProductos">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Lista de productos -->
+  <div class="prod-list" *ngIf="!loadingProductos">
+    <div class="prod-card" *ngFor="let p of filtrados">
+      <div class="prod-info">
+        <div class="prod-nombre">{{ p.nombre }}</div>
+        <div class="prod-meta">{{ p.codigo_producto }} · {{ p.categoria }}</div>
+        <div class="prod-precio">{{ fmtCLP(p.precio) }}</div>
+      </div>
+      <div class="prod-acciones">
+        <button class="qty-btn minus" (click)="quitarDelCarrito(p)" [disabled]="cantidadEnCarrito(p) === 0">−</button>
+        <span class="qty-val">{{ cantidadEnCarrito(p) }}</span>
+        <button class="qty-btn plus" (click)="agregarAlCarrito(p)">+</button>
+      </div>
+    </div>
+
+    <div class="np-vacio" *ngIf="filtrados.length === 0">
+      No se encontraron productos.
+    </div>
+  </div>
+
+  <!-- Carrito resumen (colapsado si está vacío) -->
+  <div class="carrito-panel" *ngIf="!carritoVacio">
+    <div class="carrito-titulo">Resumen del pedido</div>
+
+    <div class="carrito-items">
+      <div class="carrito-item" *ngFor="let item of carrito">
+        <span class="ci-nombre">{{ item.producto.nombre }}</span>
+        <span class="ci-cant">× {{ item.cantidad }}</span>
+        <span class="ci-sub">{{ fmtCLP(item.producto.precio * item.cantidad) }}</span>
+      </div>
+    </div>
+
+    <div class="carrito-total">
+      <span>Total</span>
+      <span>{{ fmtCLP(totalCarrito) }}</span>
+    </div>
+
+    <div class="np-form">
+      <label>
+        Dirección de entrega <span style="color:#e00;">*</span>
+      </label>
+      <input type="text" [(ngModel)]="direccion_entrega" placeholder="Ej: Av. Providencia 1234" class="form-input"
+        [class.input-error]="!direccion_entrega.trim() && loading" />
+
+      <label>Comuna de destino <span style="color:#e00;">*</span></label>
+
+      <div *ngIf="loadingComunas" style="font-size:13px; color:#888;">Cargando comunas…</div>
+
+      <select *ngIf="!loadingComunas" [(ngModel)]="ciudadEnvio" class="form-input"
+        [class.input-error]="!ciudadEnvio && loading">
+
+        <option value="" disabled selected>Selecciona una comuna</option>
+
+        <optgroup *ngFor="let grupo of regionesConComunas" [label]="grupo.region">
+          <option *ngFor="let c of grupo.comunas" [value]="c.name">
+            {{ c.name | titlecase }}
+          </option>
+        </optgroup>
+      </select>
+      
+
+      <label>Notas</label>
+      <textarea [(ngModel)]="notas" placeholder="Instrucciones adicionales…" class="form-input" rows="2"></textarea>
+    </div>
+
+    <button class="btn-confirmar" (click)="confirmarPedido()" [disabled]="carritoVacio || loading">
+      <span *ngIf="loading">Procesando…</span>
+      <span *ngIf="!loading && auth.isAuthenticated">Pagar con Webpay</span>
+      <span *ngIf="!loading && !auth.isAuthenticated">Iniciar sesión para pedir</span>
+    </button>
+
+
+  </div>
+
+</div>

@@ -1,0 +1,238 @@
+.nuevo-pedido {
+  padding-bottom: 40px;
+  background: var(--bg, #f5f5f5);
+  min-height: 100vh;
+}
+
+/* ── Header (mismo patrón que el resto de la app) ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.page-title {
+  font-weight: 700;
+  margin: 0;
+  font-size: 18px;
+}
+
+.icon-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  svg { width: 20px; height: 20px; }
+  &.light { background: #f0f0f0; color: #1a1a1a; }
+  &:hover { opacity: 0.8; }
+}
+
+/* ── Buscador ── */
+.search-wrap {
+  padding: 12px 20px;
+  background: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 12px;
+  font-size: 15px;
+  background: #f7f7f7;
+  outline: none;
+  &:focus { border-color: #1a1a1a; background: #fff; }
+}
+
+/* ── Lista de productos ── */
+.prod-list {
+  padding: 12px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.prod-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.prod-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.prod-nombre {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.prod-meta {
+  font-size: 12px;
+  color: #999;
+}
+
+.prod-precio {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-top: 2px;
+}
+
+.prod-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.qty-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 500;
+  transition: opacity 0.15s;
+
+  &.plus  { background: #1a1a1a; color: #fff; }
+  &.minus { background: #f0f0f0; color: #1a1a1a; }
+  &:disabled { opacity: 0.25; cursor: default; }
+  &:hover:not(:disabled) { opacity: 0.8; }
+}
+
+.qty-val {
+  min-width: 22px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.np-vacio {
+  text-align: center;
+  color: #aaa;
+  padding: 40px 0;
+  font-size: 14px;
+}
+
+/* ── Panel carrito ── */
+.carrito-panel {
+  margin: 8px 20px 0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.carrito-titulo {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.carrito-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.carrito-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f5f5f5;
+  &:last-child { border-bottom: none; padding-bottom: 0; }
+}
+
+.ci-nombre { flex: 1; font-weight: 500; color: #333; }
+.ci-cant   { color: #999; white-space: nowrap; }
+.ci-sub    { font-weight: 700; white-space: nowrap; color: #1a1a1a; }
+
+.carrito-total {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  font-size: 16px;
+  padding-top: 4px;
+  border-top: 1.5px solid #f0f0f0;
+}
+
+/* ── Formulario ── */
+.np-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1.5px solid #e8e8e8;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #f7f7f7;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  &:focus { border-color: #1a1a1a; background: #fff; }
+}
+
+/* ── Botón confirmar (negro, igual al resto de la app) ── */
+.btn-confirmar {
+  width: 100%;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  &:hover:not(:disabled) { opacity: 0.85; }
+  &:disabled { opacity: 0.35; cursor: default; }
+}
+
+/* ── Spinner ── */
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #1a1a1a;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
