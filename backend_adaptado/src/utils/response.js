@@ -1,0 +1,21 @@
+/**
+ * Respuesta exitosa estándar
+ */
+const success = (res, data, message = 'OK', statusCode = 200) => {
+  return res.status(statusCode).json({
+    success: true,
+    message,
+    data,
+  });
+};
+
+/**
+ * Respuesta de error estándar
+ */
+const error = (res, message = 'Error interno del servidor', statusCode = 500, errors = null) => {
+  const body = { success: false, message };
+  if (errors) body.errors = errors;
+  return res.status(statusCode).json(body);
+};
+
+module.exports = { success, error };
